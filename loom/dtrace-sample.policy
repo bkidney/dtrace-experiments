@@ -1,0 +1,56 @@
+#
+# There are two instrumentation strategies:
+#  * callout:  call an instrumentation function like __loom_called_foo
+#  * inline    inject instrumentation inline with instrumented events
+#
+strategy: callout
+
+#
+# When using callout instrumentation, the generated instrumentation functions
+# are named __loom_{event-specific-name} by default. This configuration value
+# allows the `__loom` prefix to be overridden.
+#
+hook_prefix: __test_hook
+
+#
+# Loom can automatically log events and their immediate values (e.g., when
+# logging a call to foo(1, 2, 3.1415), emit "foo", 1, 2 and 3.1415) without
+# any processing. Strategies include:
+#
+#  * none      do not use the simple logger
+#  * printf    just print the event using printf()
+#  * xo        use libxo to emit a structured representation (e.g., json)
+#
+logging: none
+
+#
+# Loom can report events via FreeBSD's ktrace(1) mechanism, either from
+# the kernel ("kernel") or from userspace via the utrace(2) system call.
+#
+dtrace: userspace
+
+#
+# Loom currently serializes event information for, e.g., ktrace reporting
+# using libnv. Support for other serialization schemes can be added.
+#
+serialization: none 
+
+#
+# Specify how/when functions should be instrumented.
+#
+# Functions can be instrumented on the caller side (before/after the call)
+# or the callee side (function prelude / return sites). This configuration
+# value should be a list of entries, each specifying:
+#
+#  * `name`: the name of the function being instrumented (language-mangled)
+#  * `caller`: (optional) list of directions to instrument calls (entry/exit)
+#  * `callee`: (optional) list of directions to instrument functions
+#
+functions:
+#    - name: raw_cat
+#      caller: [ entry, exit ]
+
+    - name: test_call
+      caller: [ exit ]
+      callee: [ exit ]
+
